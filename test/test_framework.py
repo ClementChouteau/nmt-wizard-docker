@@ -355,8 +355,8 @@ def test_release_with_inference_options(tmpdir):
     options_path = os.path.join(model_dir, "options.json")
     assert os.path.exists(options_path)
     with open(options_path) as options_file:
-        schema = json.load(options_file)
-        assert schema == config["inference_options"]["json_schema"]
+        options = json.load(options_file)
+        assert options["json_schema"] == config["inference_options"]["json_schema"]
 
 def test_integrity_check(tmpdir):
     model_dir = _run_framework(tmpdir, "model0", "train", config=config_base)

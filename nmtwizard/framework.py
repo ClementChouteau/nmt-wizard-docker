@@ -165,6 +165,17 @@ class Framework(Utility):
         """
         raise NotImplementedError()
 
+    def supported_features(self, config):
+        """Declares features supported by this model.
+
+        Args:
+          config: The model configuration.
+
+        Returns:
+          A dictionary mapping feature names to support information.
+        """
+        return {}
+
     def train_multi_files(self,
                           config,
                           data_dir,
@@ -597,12 +608,18 @@ class Framework(Utility):
         for name in ("parent_model", "build", "data"):
             if name in config:
                 del config[name]
+        model_options = {}
+        supported_features = self.supported_features(config)
+        if supported_features:
+            model_options["supported_features"] = supported_features
         inference_options = config.get('inference_options')
         if inference_options is not None:
             schema = config_util.validate_inference_options(inference_options, config)
+            model_options["json_schema"] = schema
+        if model_options:
             options_path = os.path.join(self._output_dir, 'options.json')
             with open(options_path, 'w') as options_file:
-                json.dump(schema, options_file)
+                json.dump(model_options, options_file)
             objects[os.path.basename(options_path)] = options_path
         objects_dir = os.path.join(self._models_dir, model_id)
         build_model_dir(objects_dir, objects, config, should_check_integrity)
